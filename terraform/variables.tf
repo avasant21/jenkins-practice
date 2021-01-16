@@ -8,14 +8,18 @@ variable "REGION" {
   type        = string
 }
 
+variable "AMI_PREFIX" {
+  type        = string
+}
+
 variable "INSTANCE_TYPE" {
   type = list(string)
-  default      = ["t2.micro", "t2.nano"]
+  default      = ["t2.medium"]
 }
 
 variable "INSTANCE_COUNT" {
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "SOURCE_CIDR" {

@@ -6,7 +6,7 @@ pipeline {
         DOCKERHUB_KEYS = credentials('dockerhub')
         DOCKER_IMAGE_NAME = "mtwebapp"
         RELEASE_VERSION = '1.0'
-        AMI_NAME_PREFIX = "mtapp"
+        AMI_NAME_PREFIX = "mtwebapp"
     }
     options {
         ansiColor('xterm')
@@ -75,7 +75,13 @@ pipeline {
                     echo "Deploying [MTAPP-${RELEASE_VERSION}] in AWS Cloud Services.."
                     sh '''
                         #!/bin/bash
-                        echo ""
+                        cd ${WORKSPACE}/terraform
+                        export AWS_ACCESS_KEY_ID=${AWS_KEYS_USR}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_KEYS_PSW}
+                        export AWS_DEFAULT_REGION=${AWS_REGION}
+                        export TF_VAR_AMI_PREFIX=${AMI_NAME_PREFIX}
+                        terraform init
+                        terraform apply -auto-approve
                     '''
                 }
             }

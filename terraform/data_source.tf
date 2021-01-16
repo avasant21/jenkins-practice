@@ -3,7 +3,7 @@ data "aws_ami" "MT_APP" {
   most_recent = true
   filter {
     name      = "name"
-    values    = ["mtapp-*"]
+    values    = [format("%s-*", var.AMI_PREFIX)]
   }
 }
 
