@@ -1,0 +1,163 @@
+- hosts: localhost
+  become: true
+  connection: local
+
+  tasks:
+    - name: Install yum utils
+      yum:
+        name: yum-utils
+        state: latest
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Install device-mapper-persistent-data
+      yum:
+        name: device-mapper-persistent-data
+        state: latest
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Install lvm2
+      yum:
+        name: lvm2
+        state: latest
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Add Docker repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Enable Docker Edge repo
+      ini_file:
+        dest: /etc/yum.repos.d/docker-ce.repo
+        section: 'docker-ce-edge'
+        option: enabled
+        value: 0
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Enable Docker Test repo
+      ini_file:
+        dest: /etc/yum.repos.d/docker-ce.repo
+        section: 'docker-ce-test'
+        option: enabled
+        value: 0
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Install Docker
+      package:
+        name: docker-ce
+        state: latest
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Alternatives python link created
+      alternatives:
+        name: python
+        link: /usr/bin/python
+        path: /usr/bin/python3
+        priority: 1
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Alternatives pip link created
+      alternatives:
+        name: pip
+        link: /usr/bin/pip
+        path: /usr/bin/pip3
+        priority: 1
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Upgrade pip
+      pip:
+        name: pip
+        state: latest
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Upgrade setuptools
+      pip:
+        name: setuptools
+        state: latest
+      register: output
+
+    - debug:
+        var: output
+
+    - name: install python modules for docker & docker-compose
+      pip:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - docker
+        - docker-compose
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Bring up the services
+      docker_compose:
+        project_src: /home/centos
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Alternatives python link created
+      alternatives:
+        name: python
+        link: /usr/bin/python
+        path: /usr/bin/python2
+        priority: 1
+      register: output
+
+    - debug:
+        var: output
+
+    - name: Alternatives pip link created
+      alternatives:
+        name: pip
+        link: /usr/bin/pip
+        path: /usr/bin/pip2
+        priority: 1
+      register: output
+
+    - debug:
+        var: output

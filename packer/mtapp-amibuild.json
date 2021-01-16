@@ -1,0 +1,64 @@
+{
+	"variables": {
+		"aws_access_key": "",
+		"aws_secret_key": "",
+		"region": "us-east-1",
+		"version": "1.0"
+	},
+	"builders": [{
+		"type": "amazon-ebs",
+		"access_key": "{{user `aws_access_key`}}",
+		"secret_key": "{{user `aws_secret_key`}}",
+		"region": "{{user `region`}}",
+		"source_ami_filter": {
+		  "filters": {
+			"name": "centos-7-base*"
+		  },
+		  "owners": "161831738826",
+		  "most_recent": true
+		},
+		"ami_name": "mtapp-{{user `version`}}-{{timestamp}}",
+		"instance_type": "t2.micro",
+		"ssh_username": "centos",
+		"tags": {
+			"name": "mtapp-{{user `version`}}",
+			"version": "{{user `version`}}",
+			"base": "{{ .SourceAMIName }}"
+		}
+	}],
+	"provisioners": [
+		{
+			"type": "shell",
+			"inline": [
+				"echo 'Updating the system with latest patch'",
+				"sudo yum update -y",
+				"echo 'Creating centos User'",
+				"sudo usermod -aG wheel centos",
+				"sudo sed -i 's/^%wheel/# %wheel/' /etc/sudoers",
+				"echo '%wheel  ALL=(ALL)       NOPASSWD: ALL' | sudo tee -a /etc/sudoers",
+				"echo centos:centos | sudo chpasswd",
+				"echo 'Installing Ansible'",
+				"sudo yum install -y epel-release",
+				"sudo yum install -y ansible",
+				"echo 'Installing python & pip'",
+				"sudo yum install -y python python-pip python3 python3-pip"
+			]
+		},
+		{
+			"type": "file",
+			"source": "../docker/docker-compose.yml",
+			"destination": "/home/centos/docker-compose.yml"
+		},
+		{
+			"type": "ansible-local",
+			"playbook_file": "../ansible/mtapp.yml"
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"echo 'Removing Ansible'",
+				"sudo yum remove -y ansible"
+			]
+		}
+	]
+}
