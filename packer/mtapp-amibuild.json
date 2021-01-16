@@ -2,8 +2,9 @@
 	"variables": {
 		"aws_access_key": "",
 		"aws_secret_key": "",
-		"region": "us-east-1",
-		"version": "1.0"
+		"region": "{{env `AWS_REGION`}}",
+		"version": "{{env `RELEASE_VERSION`}}",
+		"ami_name": "{{env `AMI_NAME_PREFIX`}}"
 	},
 	"builders": [{
 		"type": "amazon-ebs",
@@ -17,11 +18,11 @@
 		  "owners": "161831738826",
 		  "most_recent": true
 		},
-		"ami_name": "mtapp-{{user `version`}}-{{timestamp}}",
+		"ami_name": "{{user `ami_name`}}-{{user `version`}}-{{timestamp}}",
 		"instance_type": "t2.micro",
 		"ssh_username": "centos",
 		"tags": {
-			"name": "mtapp-{{user `version`}}",
+			"name": "{{user `ami_name`}}-{{user `version`}}",
 			"version": "{{user `version`}}",
 			"base": "{{ .SourceAMIName }}"
 		}
@@ -46,12 +47,12 @@
 		},
 		{
 			"type": "file",
-			"source": "../docker/docker-compose.yml",
+			"source": "docker/docker-compose.yml",
 			"destination": "/home/centos/docker-compose.yml"
 		},
 		{
 			"type": "ansible-local",
-			"playbook_file": "../ansible/mtapp.yml"
+			"playbook_file": "ansible/mtapp.yml"
 		},
 		{
 			"type": "shell",

@@ -2,10 +2,11 @@ pipeline {
     agent none
     environment {
         AWS_KEYS = credentials('aws')
+        AWS_REGION = 'ap-south-1'
         DOCKERHUB_KEYS = credentials('dockerhub')
         DOCKER_IMAGE_NAME = "mtwebapp"
         RELEASE_VERSION = '1.0'
-        AMI_NAME_PREFIX = "mtapp-"
+        AMI_NAME_PREFIX = "mtapp"
     }
     options {
         ansiColor('xterm')
@@ -46,7 +47,7 @@ pipeline {
                         docker login -u ${DOCKERHUB_KEYS_USR} -p ${DOCKERHUB_KEYS_PSW}
                         docker push ${DOCKERHUB_KEYS_USR}/${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}
                         docker logout
-                        docker image --prune -f -a
+                        docker image prune -f -a
                     '''
                 }
             }
@@ -54,10 +55,16 @@ pipeline {
         stage('ARTIFACTS: AWS AMI') {
             steps {
                 node('master') {
-                    echo "Developing MTAPP AMI [${AMI_NAME_PREFIX}${RELEASE_VERSION}].."
+                    echo "Developing MTAPP AMI [${AMI_NAME_PREFIX}-${RELEASE_VERSION}].."
                     sh '''
                         #!/bin/bash
-                        echo ""
+                        export AWS_ACCESS_KEY_ID=${AWS_KEYS_USR}
+                        export AWS_SECRET_ACCESS_KEY=${AWS_KEYS_PSW}
+                        export AWS_REGION=${AWS_REGION}
+                        export AMI_NAME_PREFIX=${AMI_NAME_PREFIX}
+                        export RELEASE_VERSION=${RELEASE_VERSION}
+                        sed -i "s~^    image: .*~    image: ${DOCKERHUB_KEYS_USR}/${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}~g" docker/docker-compose.yml
+                        packr build packer/mtapp-amibuild.json
                     '''
                 }
             }
