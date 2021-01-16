@@ -30,8 +30,8 @@ pipeline {
                     echo "Building [${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}].."
                     sh '''
                         #!/bin/bash
-                        cd ${WORKSPACE}/docker
-                        docker build -t ${DOCKER_IMAGE_NAME}:${RELEASE_VERSION} .
+                        cd ${WORKSPACE}
+                        docker build -t ${DOCKER_IMAGE_NAME}:${RELEASE_VERSION} -f docker/Dockerfile .
                     '''
                 }
             }
