@@ -4,10 +4,6 @@ variable "PROJECT" {
   description = "Name of the project"
 }
 
-variable "REGION" {
-  type        = string
-}
-
 variable "AMI_PREFIX" {
   type        = string
 }
