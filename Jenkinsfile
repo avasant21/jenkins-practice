@@ -3,7 +3,7 @@ pipeline {
     environment {
         AWS_KEYS = credentials('aws')
         DOCKERHUB_KEYS = credentials('dockerhub')
-        DOCKER_IMAGE_NAME = "milindtech/mtwebapp"
+        DOCKER_IMAGE_NAME = "mtwebapp"
         RELEASE_VERSION = '1.0'
         AMI_NAME_PREFIX = "mtapp-"
     }
@@ -16,7 +16,7 @@ pipeline {
             steps {
                 node('master') {
                     echo "Cloning the repository.."
-                    checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: 'main']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CleanCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/avasant21/jenkins-practice.git']]]
+                    git branch: 'main', changelog: false, poll: false, url: 'https://github.com/avasant21/jenkins-practice.git'
                     sh '''
                         #!/bin/bash
                         echo ""
