@@ -30,7 +30,8 @@ pipeline {
                     echo "Building [${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}].."
                     sh '''
                         #!/bin/bash
-                        echo ""
+                        cd ${WORKSPACE}/docker
+                        docker build -t ${DOCKER_IMAGE_NAME}:${RELEASE_VERSION} .
                     '''
                 }
             }
@@ -41,7 +42,11 @@ pipeline {
                     echo "Publishing [${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}].."
                     sh '''
                         #!/bin/bash
-                        echo ""
+                        docker tag ${DOCKER_IMAGE_NAME}:${RELEASE_VERSION} ${DOCKERHUB_KEYS_USR}/${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}
+                        docker login -u ${DOCKERHUB_KEYS_USR} -p ${DOCKERHUB_KEYS_PSW}
+                        docker push ${DOCKERHUB_KEYS_USR}/${DOCKER_IMAGE_NAME}:${RELEASE_VERSION}
+                        docker logout
+                        docker image --prune -f -a
                     '''
                 }
             }
