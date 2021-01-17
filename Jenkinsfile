@@ -18,10 +18,6 @@ pipeline {
                 node('master') {
                     echo "Cloning the repository.."
                     git branch: 'main', changelog: false, poll: false, url: 'https://github.com/avasant21/jenkins-practice.git'
-                    sh '''
-                        #!/bin/bash
-                        echo ""
-                    '''
                 }
             }
         }
@@ -54,7 +50,9 @@ pipeline {
         }
         stage('ARTIFACTS: AWS AMI') {
             steps {
-                node('master') {
+                node('aws') {
+                    echo "Cloning the repository.."
+                    git branch: 'main', changelog: false, poll: false, url: 'https://github.com/avasant21/jenkins-practice.git'
                     echo "Developing MTAPP AMI [${AMI_NAME_PREFIX}-${RELEASE_VERSION}].."
                     sh '''
                         #!/bin/bash
@@ -71,7 +69,7 @@ pipeline {
         }
         stage('DEPLOY: AWS SERVICES') {
             steps {
-                node('master') {
+                node('aws') {
                     echo "Deploying [MTAPP-${RELEASE_VERSION}] in AWS Cloud Services.."
                     sh '''
                         #!/bin/bash
